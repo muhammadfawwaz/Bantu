@@ -16,6 +16,12 @@
         android:text="@string/number_edit_text"
         android:textColor="#616161"/>
 
+    <EditText
+        android:id="@+id/message_edit_text_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fill your message"
+        android:textColor="#616161"/>
 
     <TextView
         android:id="@+id/instruction_text_view_id"

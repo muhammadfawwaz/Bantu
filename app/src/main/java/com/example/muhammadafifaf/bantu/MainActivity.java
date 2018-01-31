@@ -24,6 +24,8 @@ import static android.widget.Toast.LENGTH_SHORT;
 public class MainActivity extends AppCompatActivity {
     Button helpButton;
     EditText numberEditText;
+    EditText messageEditText;
+    int j = 0;
     int i = 0;
 
     @Override
@@ -85,8 +87,22 @@ public class MainActivity extends AppCompatActivity {
                 if(request == 200) {
                     Toast.makeText(MainActivity.this,"Help message was sent",LENGTH_SHORT).show();
                 }
+                else if(request == 0) {
+                    Toast.makeText(MainActivity.this, "Your message is empty. Please try again", Toast.LENGTH_SHORT).show();
+                }
                 else {
                     Toast.makeText(MainActivity.this,"Failed to send help message",LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        messageEditText = (EditText) findViewById(R.id.message_edit_text_id);
+        messageEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(j == 0) {
+                    messageEditText.getText().clear();
+                    j++;
                 }
             }
         });
@@ -103,27 +119,32 @@ public class MainActivity extends AppCompatActivity {
         con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         con.setRequestProperty("Authorization", "Bearer e171f67c3e9b279c59e3fbf4a028f468");
 
-        String urlParameters = "msisdn=" + numberEditText.getText().toString() + "&content=Afif sedang membutuhkan bantuan anda. Hubungi dia sekarang juga";
+        String urlParameters = "msisdn=" + numberEditText.getText().toString() + "&content=" + messageEditText.getText().toString();
 
-        // Send post request
-        con.setDoOutput(true);
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(urlParameters);
-        wr.flush();
-        wr.close();
-
-        int responseCode = con.getResponseCode();
-        Log.v("result", String.valueOf(responseCode));
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
+        if(messageEditText.getText().toString().isEmpty()) {
+            return 0;
         }
-        in.close();
-        return responseCode;
+        else {
+            // Send post request
+            con.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+            wr.writeBytes(urlParameters);
+            wr.flush();
+            wr.close();
+
+            int responseCode = con.getResponseCode();
+            Log.v("result", String.valueOf(responseCode));
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            return responseCode;
+        }
     }
 }
