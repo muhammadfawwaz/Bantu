@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     Button helpButton;
     EditText numberEditText;
     EditText messageEditText;
+    String responseMessage;
     int j = 0;
     int i = 0;
 
@@ -71,11 +72,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         helpButton.setOnClickListener(new View.OnClickListener() {
-            private int request = 0;
+            int request = 0;
             @Override
             public void onClick(View view) {
-                if(numberEditText.getText().toString().isEmpty()) {
-                    Toast.makeText(MainActivity.this,"Number is empty", LENGTH_SHORT).show();
+                if(numberEditText.getText().toString().isEmpty() || numberEditText.getText().toString().equals("Fill your friends phone number") || messageEditText.getText().toString().isEmpty()
+                        || messageEditText.getText().toString().equals("Fill your message")) {
+                    Toast.makeText(MainActivity.this,"Number or message is empty", LENGTH_SHORT).show();
                 }
                 else {
                     try {
@@ -83,15 +85,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
-                if(request == 200) {
-                    Toast.makeText(MainActivity.this,"Help message was sent",LENGTH_SHORT).show();
-                }
-                else if(request == 0) {
-                    Toast.makeText(MainActivity.this, "Your message is empty. Please try again", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    Toast.makeText(MainActivity.this,"Failed to send help message",LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this,responseMessage,LENGTH_SHORT).show();
                 }
             }
         });
@@ -121,30 +115,26 @@ public class MainActivity extends AppCompatActivity {
 
         String urlParameters = "msisdn=" + numberEditText.getText().toString() + "&content=" + messageEditText.getText().toString();
 
-        if(messageEditText.getText().toString().isEmpty()) {
-            return 0;
+        // Send post request
+        con.setDoOutput(true);
+        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+        wr.writeBytes(urlParameters);
+        wr.flush();
+        wr.close();
+
+        int responseCode = con.getResponseCode();
+        responseMessage = con.getResponseMessage();
+        Log.v("result", String.valueOf(responseCode));
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
         }
-        else {
-            // Send post request
-            con.setDoOutput(true);
-            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-            wr.writeBytes(urlParameters);
-            wr.flush();
-            wr.close();
-
-            int responseCode = con.getResponseCode();
-            Log.v("result", String.valueOf(responseCode));
-
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            return responseCode;
-        }
+        in.close();
+        return responseCode;
     }
 }
