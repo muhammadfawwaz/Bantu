@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 
         //add reuqest header
+        //
         con.setRequestMethod("POST");
         con.setRequestProperty("Accept", "application/json");
         con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
